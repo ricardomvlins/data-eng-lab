@@ -1,0 +1,18 @@
+# Stack do data-eng-lab. Por enquanto, só o banco Postgres.
+
+services:
+  postgres:
+    image: postgres:16                  # imagem oficial, versão fixa
+    env_file: .env                      # usuário, senha e banco vêm do .env
+    ports:
+      - "5432:5432"                     # porta do seu PC : porta do container
+    volumes:
+      - pgdata:/var/lib/postgresql/data # guarda os dados fora do container
+      - ./01-sql/00_init.sql:/docker-entrypoint-initdb.d/00_init.sql:ro # script de init (só leitura)
+    healthcheck:                        # Docker pergunta ao banco se ele já aceita conexões
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      retries: 5
+
+volumes:
+  pgdata:                               # volume nomeado, criado e gerenciado pelo Docker
